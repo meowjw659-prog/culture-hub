@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -185,6 +186,108 @@
       .content-card { grid-template-columns: 110px 1fr; }
       .side-col { grid-template-columns: 1fr; }
     }
+
+    /* ===== 管理后台 ===== */
+    .admin-gate {
+      position: fixed; inset: 0; z-index: 110;
+      display: none; align-items: center; justify-content: center; padding: 24px;
+      background: rgba(15,23,42,.55);
+    }
+    .admin-gate.open { display: flex; }
+    .admin-gate-card {
+      width: 100%; max-width: 360px;
+      background: var(--bg2); border-radius: 24px; padding: 32px 28px;
+      box-shadow: 0 30px 70px rgba(15,23,42,.3);
+    }
+    .admin-gate-card h3 { font-size: 1.2rem; margin-bottom: 16px; }
+    .admin-gate-card input {
+      width: 100%; border: 1px solid var(--rule); border-radius: 12px;
+      padding: 12px 14px; font-size: 1rem; outline: none; margin-bottom: 12px;
+    }
+    .admin-gate-card input:focus { border-color: var(--accent); }
+    .admin-gate-card button {
+      width: 100%; background: var(--accent); color: #fff;
+      border-radius: 12px; padding: 12px; font-weight: 800;
+    }
+    .admin-modal {
+      position: fixed; inset: 0; z-index: 90;
+      display: none; align-items: center; justify-content: center; padding: 24px;
+      background: rgba(15,23,42,.45);
+    }
+    .admin-modal.open { display: flex; }
+    .admin-sheet {
+      width: 100%; max-width: 800px; max-height: 90vh;
+      background: var(--bg2); border-radius: 24px;
+      box-shadow: 0 30px 70px rgba(15,23,42,.3);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .admin-head {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 20px 24px; border-bottom: 1px solid var(--rule);
+    }
+    .admin-head h3 { font-size: 1.2rem; }
+    .admin-tabs {
+      display: flex; gap: 0; border-bottom: 1px solid var(--rule);
+      overflow-x: auto;
+    }
+    .admin-tab {
+      padding: 12px 20px; font-size: .88rem; font-weight: 700;
+      color: var(--muted); border-bottom: 2px solid transparent; white-space: nowrap;
+    }
+    .admin-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .admin-body {
+      flex: 1; overflow: auto; padding: 20px 24px;
+    }
+    .admin-form { display: grid; gap: 14px; }
+    .admin-form .field { display: grid; gap: 6px; }
+    .admin-form label { font-size: .84rem; font-weight: 700; color: var(--muted); }
+    .admin-form input, .admin-form select, .admin-form textarea {
+      border: 1px solid var(--rule); border-radius: 10px; padding: 10px 12px;
+      font-size: .92rem; outline: none; width: 100%;
+    }
+    .admin-form input:focus, .admin-form select:focus, .admin-form textarea:focus { border-color: var(--accent); }
+    .admin-form textarea { min-height: 80px; resize: vertical; }
+    .item-list { display: grid; gap: 12px; }
+    .item-row {
+      background: var(--bg); border: 1px solid var(--rule);
+      border-radius: 14px; padding: 14px;
+    }
+    .item-row-head {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 10px;
+    }
+    .item-row-head b { font-size: .92rem; }
+    .item-row-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    }
+    .item-row-grid .field { margin: 0; }
+    .item-row-grid .field.full { grid-column: 1 / -1; }
+    .admin-foot {
+      display: flex; gap: 10px; padding: 16px 24px;
+      border-top: 1px solid var(--rule);
+    }
+    .export-btn {
+      flex: 1; background: var(--accent); color: #fff;
+      border-radius: 12px; padding: 12px; font-weight: 800; font-size: .92rem;
+    }
+    .save-btn {
+      background: var(--accent2); color: #fff;
+      border-radius: 10px; padding: 10px 16px; font-weight: 800; font-size: .86rem;
+    }
+    .add-btn {
+      background: var(--soft); color: var(--accent);
+      border-radius: 10px; padding: 10px 16px; font-weight: 800; font-size: .86rem;
+    }
+    .del-btn {
+      background: rgba(239,71,111,.1); color: var(--danger);
+      border-radius: 8px; padding: 6px 10px; font-size: .78rem; font-weight: 700;
+    }
+    @media (max-width: 640px) {
+      .admin-sheet { max-height: 95vh; border-radius: 18px; }
+      .admin-body { padding: 16px; }
+      .item-row-grid { grid-template-columns: 1fr; }
+      .admin-foot { padding: 12px 16px; flex-wrap: wrap; }
+    }
   </style>
 </head>
 <body>
@@ -313,6 +416,37 @@
     </div>
   </div>
 
+  <!-- ===== 管理员口令弹窗 ===== -->
+  <div class="admin-gate" id="adminGate">
+    <div class="admin-gate-card">
+      <h3>管理员验证</h3>
+      <input type="password" id="adminInput" placeholder="输入管理员口令" autocomplete="off">
+      <button id="adminBtn">进入后台</button>
+      <div class="gate-err" id="adminErr" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <!-- ===== 管理后台 ===== -->
+  <div class="admin-modal" id="adminModal">
+    <div class="admin-sheet">
+      <div class="admin-head">
+        <h3>内容管理后台</h3>
+        <button class="close" id="closeAdmin">×</button>
+      </div>
+      <div class="admin-tabs">
+        <button class="admin-tab active" data-tab="items">内容管理</button>
+        <button class="admin-tab" data-tab="hero">推荐位</button>
+        <button class="admin-tab" data-tab="mag">内刊</button>
+        <button class="admin-tab" data-tab="settings">口令设置</button>
+      </div>
+      <div class="admin-body" id="adminBody"></div>
+      <div class="admin-foot">
+        <button class="save-btn" id="saveAdmin">保存修改</button>
+        <button class="export-btn" id="exportBtn">导出完整 HTML</button>
+      </div>
+    </div>
+  </div>
+
 <script>
 /* ╔═══════════════════════════════════════════════════════════════════╗
    ║                                                                       ║
@@ -407,6 +541,14 @@ var CONTENT = {
     }
   ]
 };
+
+/* 从 localStorage 加载本地修改 */
+(function loadLocalData() {
+  var saved = localStorage.getItem('cultureHubData');
+  if (saved) {
+    try { Object.assign(CONTENT, JSON.parse(saved)); } catch (e) {}
+  }
+})();
 
 /* ╔═══════════════════════════════════════════════════════════════════╗
    ║                                                                       ║
@@ -573,6 +715,218 @@ var CONTENT = {
   document.getElementById("copyLink").addEventListener("click", function () { copyText(location.href); toast("页面链接已复制"); });
   document.getElementById("copyHero").addEventListener("click", function () { copyText(location.href); toast("链接已复制"); });
   openLink.addEventListener("click", function () { var lk = openLink.dataset.link; if (lk) window.open(lk, "_blank"); });
+
+  /* ===== 管理后台 ===== */
+  var ADMIN_PASSCODE = "8888";
+  var logoClickCount = 0;
+  var logoClickTimer = null;
+  var currentAdminTab = "items";
+
+  // logo 连续点击触发
+  document.querySelector('.logo').addEventListener('click', function() {
+    logoClickCount++;
+    clearTimeout(logoClickTimer);
+    logoClickTimer = setTimeout(function() { logoClickCount = 0; }, 800);
+    if (logoClickCount >= 5) {
+      logoClickCount = 0;
+      document.getElementById('adminGate').classList.add('open');
+      document.getElementById('adminInput').value = '';
+      document.getElementById('adminInput').focus();
+    }
+  });
+
+  // 管理员口令验证
+  document.getElementById('adminBtn').addEventListener('click', function() {
+    var v = document.getElementById('adminInput').value.trim();
+    if (v === (CONTENT.adminPasscode || ADMIN_PASSCODE)) {
+      document.getElementById('adminGate').classList.remove('open');
+      openAdmin();
+    } else {
+      document.getElementById('adminErr').textContent = '口令不正确';
+    }
+  });
+  document.getElementById('adminInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') document.getElementById('adminBtn').click();
+  });
+
+  // 关闭管理后台
+  document.getElementById('closeAdmin').addEventListener('click', function() {
+    document.getElementById('adminModal').classList.remove('open');
+  });
+
+  // Tab 切换
+  document.querySelectorAll('.admin-tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      currentAdminTab = tab.dataset.tab;
+      document.querySelectorAll('.admin-tab').forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      renderAdminBody();
+    });
+  });
+
+  function renderAdminBody() {
+    var body = document.getElementById('adminBody');
+    if (currentAdminTab === 'items') {
+      var html = '<div class="item-list">';
+      CONTENT.items.forEach(function(it, i) {
+        html += '<div class="item-row" data-idx="' + i + '">'
+          + '<div class="item-row-head"><b>内容 #' + (i+1) + '</b><button class="del-btn" onclick="window._delItem(' + i + ')">删除</button></div>'
+          + '<div class="item-row-grid">'
+          + '<div class="field"><label>分类</label><select class="item-cat">' + ['文章','视频','专访','内刊'].map(function(c) { return '<option' + (it.category===c?' selected':'') + '>' + c + '</option>'; }).join('') + '</select></div>'
+          + '<div class="field"><label>标题</label><input type="text" class="item-title" value="' + escapeHtml(it.title) + '"></div>'
+          + '<div class="field full"><label>简介</label><textarea class="item-desc">' + escapeHtml(it.desc) + '</textarea></div>'
+          + '<div class="field"><label>日期</label><input type="text" class="item-date" value="' + escapeHtml(it.date||'') + '" placeholder="今天 / 07-28"></div>'
+          + '<div class="field"><label>时长</label><input type="text" class="item-duration" value="' + escapeHtml(it.duration||'') + '" placeholder="3分12秒 / 4分钟读完"></div>'
+          + '<div class="field"><label>阅读量</label><input type="number" class="item-reads" value="' + (it.reads||0) + '"></div>'
+          + '<div class="field"><label>链接</label><input type="text" class="item-link" value="' + escapeHtml(it.link||'') + '" placeholder="https://... 或留空"></div>'
+          + '<div class="field"><label>是否视频</label><select class="item-isvideo"><option value="false"' + (!it.isVideo?' selected':'') + '>否</option><option value="true"' + (it.isVideo?' selected':'') + '>是</option></select></div>'
+          + '</div></div>';
+      });
+      html += '</div><button class="add-btn" style="margin-top:12px;" onclick="window._addItem()">+ 新增内容</button>';
+      body.innerHTML = html;
+    } else if (currentAdminTab === 'hero') {
+      body.innerHTML = '<div class="admin-form">'
+        + '<div class="field"><label>标签</label><input type="text" id="heroLabelInput" value="' + escapeHtml(CONTENT.hero.label) + '"></div>'
+        + '<div class="field"><label>标题</label><input type="text" id="heroTitleInput" value="' + escapeHtml(CONTENT.hero.title) + '"></div>'
+        + '<div class="field"><label>简介</label><textarea id="heroDescInput">' + escapeHtml(CONTENT.hero.desc) + '</textarea></div>'
+        + '<div class="field"><label>链接</label><input type="text" id="heroLinkInput" value="' + escapeHtml(CONTENT.hero.link||'') + '" placeholder="https://... 或留空"></div>'
+        + '</div>';
+    } else if (currentAdminTab === 'mag') {
+      body.innerHTML = '<div class="admin-form">'
+        + '<div class="field"><label>期号</label><input type="text" id="magIssueInput" value="' + escapeHtml(CONTENT.magazine.issue) + '"></div>'
+        + '<div class="field"><label>标题</label><input type="text" id="magTitleInput" value="' + escapeHtml(CONTENT.magazine.title) + '"></div>'
+        + '<div class="field"><label>简介</label><textarea id="magDescInput">' + escapeHtml(CONTENT.magazine.desc) + '</textarea></div>'
+        + '<div class="field"><label>链接</label><input type="text" id="magLinkInput" value="' + escapeHtml(CONTENT.magazine.link||'') + '" placeholder="https://... 或留空"></div>'
+        + '</div>';
+    } else if (currentAdminTab === 'settings') {
+      body.innerHTML = '<div class="admin-form">'
+        + '<div class="field"><label>访问口令（员工输入）</label><input type="text" id="passcodeInput" value="' + escapeHtml(CONTENT.passcode) + '"></div>'
+        + '<div class="field"><label>管理员口令</label><input type="text" id="adminPasscodeInput" value="' + escapeHtml(CONTENT.adminPasscode||ADMIN_PASSCODE) + '"></div>'
+        + '<div class="field"><label>站点名称</label><input type="text" id="siteNameInput" value="' + escapeHtml(CONTENT.siteName) + '"></div>'
+        + '<div class="field"><label>站点标语</label><input type="text" id="siteSloganInput" value="' + escapeHtml(CONTENT.siteSlogan) + '"></div>'
+        + '<div style="margin-top:10px;"><button class="del-btn" onclick="window._resetDefault()">一键恢复默认</button></div>'
+        + '</div>';
+    }
+  }
+
+  function openAdmin() {
+    document.getElementById('adminModal').classList.add('open');
+    renderAdminBody();
+  }
+
+  // 全局函数供 HTML onclick 调用
+  window._delItem = function(idx) {
+    if (confirm('确定删除这条内容？')) {
+      CONTENT.items.splice(idx, 1);
+      renderAdminBody();
+      saveToLocal();
+      renderFeed();
+    }
+  };
+  window._addItem = function() {
+    CONTENT.items.unshift({
+      category: "文章",
+      title: "新内容标题",
+      desc: "简介...",
+      date: "今天",
+      duration: "",
+      reads: 0,
+      link: "",
+      isVideo: false
+    });
+    renderAdminBody();
+    saveToLocal();
+    renderFeed();
+  };
+  window._resetDefault = function() {
+    if (confirm('确定恢复默认？所有本地修改将丢失。')) {
+      localStorage.removeItem('cultureHubData');
+      location.reload();
+    }
+  };
+
+  function saveToLocal() {
+    localStorage.setItem('cultureHubData', JSON.stringify(CONTENT));
+  }
+
+  document.getElementById('saveAdmin').addEventListener('click', function() {
+    if (currentAdminTab === 'items') {
+      document.querySelectorAll('.item-row').forEach(function(row) {
+        var i = parseInt(row.dataset.idx, 10);
+        CONTENT.items[i] = {
+          category: row.querySelector('.item-cat').value,
+          title: row.querySelector('.item-title').value,
+          desc: row.querySelector('.item-desc').value,
+          date: row.querySelector('.item-date').value,
+          duration: row.querySelector('.item-duration').value,
+          reads: parseInt(row.querySelector('.item-reads').value, 10) || 0,
+          link: row.querySelector('.item-link').value,
+          isVideo: row.querySelector('.item-isvideo').value === 'true'
+        };
+      });
+    } else if (currentAdminTab === 'hero') {
+      CONTENT.hero = {
+        label: document.getElementById('heroLabelInput').value,
+        title: document.getElementById('heroTitleInput').value,
+        desc: document.getElementById('heroDescInput').value,
+        link: document.getElementById('heroLinkInput').value
+      };
+    } else if (currentAdminTab === 'mag') {
+      CONTENT.magazine = {
+        issue: document.getElementById('magIssueInput').value,
+        title: document.getElementById('magTitleInput').value,
+        desc: document.getElementById('magDescInput').value,
+        link: document.getElementById('magLinkInput').value
+      };
+    } else if (currentAdminTab === 'settings') {
+      CONTENT.passcode = document.getElementById('passcodeInput').value;
+      CONTENT.adminPasscode = document.getElementById('adminPasscodeInput').value;
+      CONTENT.siteName = document.getElementById('siteNameInput').value;
+      CONTENT.siteSlogan = document.getElementById('siteSloganInput').value;
+    }
+    saveToLocal();
+    // 更新页面显示
+    document.getElementById('siteName').textContent = CONTENT.siteName;
+    document.getElementById('siteSlogan').textContent = CONTENT.siteSlogan;
+    document.getElementById('heroLabel').textContent = CONTENT.hero.label;
+    document.getElementById('heroTitle').textContent = CONTENT.hero.title;
+    document.getElementById('heroDesc').textContent = CONTENT.hero.desc;
+    document.getElementById('magIssue').textContent = CONTENT.magazine.issue;
+    document.getElementById('magTitle').textContent = CONTENT.magazine.title;
+    document.getElementById('magDesc').textContent = CONTENT.magazine.desc;
+    renderFeed();
+    toast('已保存到本地');
+  });
+
+  // 导出功能
+  document.getElementById('exportBtn').addEventListener('click', function() {
+    var saved = localStorage.getItem('cultureHubData');
+    if (!saved) { toast('没有本地修改，无需导出'); return; }
+    var data = JSON.parse(saved);
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', location.href, true);
+    xhr.onload = function() {
+      var html = xhr.responseText;
+      var contentStr = 'var CONTENT = ' + JSON.stringify(data, null, 2) + ';';
+      var re = /var CONTENT = \{[\s\S]*?\n\};/;
+      if (!re.test(html)) { toast('导出失败：无法定位内容区'); return; }
+      var newHtml = html.replace(re, contentStr);
+
+      var blob = new Blob([newHtml], {type: 'text/html'});
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'culture-hub.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      toast('已导出 culture-hub.html，请上传到 GitHub');
+    };
+    xhr.onerror = function() { toast('导出失败，请重试'); };
+    xhr.send();
+  });
 
   if (isAuthed()) { showApp(); } else { showGate(); }
 })();
