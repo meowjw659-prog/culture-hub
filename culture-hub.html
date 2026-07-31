@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>企业文化号</title>
+  <style>
+    :root {
+      --bg: #f5f7fb; --bg2: #ffffff; --ink: #162033; --muted: #64748b;
+      --rule: #e6ebf3; --accent: #245bff; --accent2: #00b8a9; --warm: #ff8a3d;
+      --soft: #eef4ff; --danger: #ef476f;
+      --font: "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", system-ui, sans-serif;
+      --max: 1240px; --shadow-sm: 0 6px 16px rgba(15,23,42,.05);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: var(--font); color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(36,91,255,.08), transparent 40rem),
+        radial-gradient(circle at bottom right, rgba(0,184,169,.08), transparent 36rem),
+        var(--bg);
+      line-height: 1.55; min-height: 100vh;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { border: 0; background: none; cursor: pointer; color: inherit; }
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+
+    /* ===== 口令门禁 ===== */
+    .gate {
+      position: fixed; inset: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: center; padding: 24px;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(36,91,255,.18), transparent 40rem),
+        radial-gradient(circle at 80% 80%, rgba(0,184,169,.16), transparent 36rem),
+        linear-gradient(160deg, #152247, #0b1530 60%, #0a1124);
+      color: #fff;
+    }
+    .gate-card {
+      width: 100%; max-width: 400px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 28px; padding: 36px 30px 30px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 30px 70px rgba(0,0,0,.4);
+    }
+    .gate-logo {
+      width: 56px; height: 56px; border-radius: 18px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: grid; place-items: center;
+      font-weight: 800; font-size: 1.5rem; margin-bottom: 20px;
+      box-shadow: 0 12px 30px rgba(36,91,255,.4);
+    }
+    .gate h1 { font-size: 1.6rem; letter-spacing: -.02em; }
+    .gate .sub { color: rgba(255,255,255,.62); font-size: .9rem; margin: 8px 0 26px; }
+    .gate-input {
+      width: 100%; background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.18); border-radius: 14px;
+      padding: 14px 16px; color: #fff; font-size: 1rem; letter-spacing: .08em;
+      outline: none; transition: border-color .2s;
+    }
+    .gate-input::placeholder { color: rgba(255,255,255,.4); letter-spacing: normal; }
+    .gate-input:focus { border-color: var(--accent2); }
+    .gate-btn {
+      width: 100%; margin-top: 14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      color: #fff; border-radius: 14px; padding: 14px;
+      font-weight: 800; font-size: 1rem;
+      box-shadow: 0 12px 28px rgba(36,91,255,.35);
+    }
+    .gate-btn:active { transform: scale(.98); }
+    .gate-err { color: var(--danger); font-size: .84rem; margin-top: 10px; min-height: 1.1em; text-align: center; }
+    .gate-hint { color: rgba(255,255,255,.4); font-size: .78rem; text-align: center; margin-top: 18px; }
+
+    /* ===== 主应用 ===== */
+    .app { display: none; }
+    .app.show { display: block; }
+    .site-header { position: sticky; top: 0; z-index: 40; background: rgba(255,255,255,.82); backdrop-filter: blur(14px); border-bottom: 1px solid var(--rule); }
+    .header-inner { max-width: var(--max); margin: 0 auto; padding: 14px 28px; display: flex; align-items: center; gap: 24px; }
+    .brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .logo { width: 40px; height: 40px; border-radius: 13px; background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; display: grid; place-items: center; font-weight: 800; box-shadow: 0 10px 24px rgba(36,91,255,.22); user-select: none; }
+    .brand h2 { font-size: 1.1rem; line-height: 1.2; }
+    .brand p { color: var(--muted); font-size: .76rem; }
+    .header-search { flex: 1; max-width: 440px; margin: 0 auto; display: flex; gap: 8px; align-items: center; background: var(--bg2); border: 1px solid var(--rule); border-radius: 14px; padding: 10px 14px; box-shadow: var(--shadow-sm); }
+    .header-search span { color: var(--muted); font-size: .9rem; }
+    .header-search input { flex: 1; border: 0; outline: none; background: transparent; color: var(--ink); min-width: 0; }
+    .header-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .lock-tag { color: var(--accent); background: rgba(36,91,255,.1); padding: 7px 12px; border-radius: 999px; font-size: .76rem; font-weight: 700; }
+    .logout-btn { color: var(--muted); font-size: .8rem; font-weight: 700; padding: 7px 10px; border-radius: 10px; }
+    .logout-btn:hover { color: var(--danger); }
+
+    .page-main { max-width: var(--max); margin: 0 auto; padding: 28px 28px 60px; }
+    .hero-card { border-radius: 28px; overflow: hidden; background: linear-gradient(135deg, #152247, #245bff); color: #fff; position: relative; min-height: 300px; box-shadow: 0 24px 40px rgba(36,91,255,.22); display: flex; align-items: center; margin-bottom: 28px; }
+    .hero-art { position: absolute; inset: 0; opacity: .28; background: radial-gradient(circle at 78% 30%, #fff 0 10px, transparent 11px), radial-gradient(circle at 88% 56%, #00e3d3 0 40px, transparent 41px), radial-gradient(circle at 92% 20%, rgba(255,255,255,.4) 0 24px, transparent 25px), linear-gradient(120deg, transparent 46%, rgba(255,255,255,.2) 47% 54%, transparent 55%); }
+    .hero-content { position: relative; padding: 48px 52px; max-width: 640px; }
+    .hero-content .label { display: inline-flex; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.28); border-radius: 999px; padding: 6px 12px; font-size: .76rem; margin-bottom: 20px; }
+    .hero-content h3 { font-size: 2rem; line-height: 1.2; margin-bottom: 12px; letter-spacing: -.01em; }
+    .hero-content p { color: rgba(255,255,255,.8); font-size: 1rem; max-width: 480px; }
+    .hero-actions { display: flex; align-items: center; gap: 14px; margin-top: 26px; }
+    .primary { color: var(--accent); background: #fff; border-radius: 12px; padding: 12px 22px; font-size: .92rem; font-weight: 800; box-shadow: 0 8px 20px rgba(0,0,0,.15); }
+    .primary:hover { transform: translateY(-1px); }
+    .ghost { color: #fff; border: 1px solid rgba(255,255,255,.32); border-radius: 12px; padding: 11px 18px; font-size: .9rem; }
+
+    .quick-section { margin-bottom: 32px; }
+    .section-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; }
+    .section-head h3 { font-size: 1.15rem; letter-spacing: -.01em; }
+    .quick-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    .quick { background: var(--bg2); border: 1px solid var(--rule); border-radius: 20px; padding: 22px 18px; display: flex; align-items: center; gap: 14px; box-shadow: var(--shadow-sm); transition: transform .2s, box-shadow .2s; }
+    .quick:hover { transform: translateY(-2px); box-shadow: 0 14px 30px rgba(15,23,42,.08); }
+    .quick .icon { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 1rem; flex-shrink: 0; }
+    .quick:nth-child(1) .icon { background: var(--accent); }
+    .quick:nth-child(2) .icon { background: var(--warm); }
+    .quick:nth-child(3) .icon { background: var(--accent2); }
+    .quick:nth-child(4) .icon { background: var(--danger); }
+    .quick .q-text { display: flex; flex-direction: column; }
+    .quick .q-text b { font-size: .98rem; }
+    .quick .q-text span { font-size: .76rem; color: var(--muted); }
+
+    .layout { display: grid; grid-template-columns: 1fr 340px; gap: 32px; align-items: start; }
+    .main-col { min-width: 0; }
+    .tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+    .tab { border: 1px solid var(--rule); background: var(--bg2); color: var(--muted); border-radius: 999px; padding: 9px 16px; font-size: .86rem; font-weight: 700; transition: all .2s; }
+    .tab:hover { border-color: var(--accent); color: var(--accent); }
+    .tab.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 8px 20px rgba(36,91,255,.22); }
+    .feed { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .empty { grid-column: 1 / -1; text-align: center; color: var(--muted); font-size: .9rem; padding: 40px 0; }
+    .content-card { background: var(--bg2); border: 1px solid var(--rule); border-radius: 20px; padding: 16px; display: grid; grid-template-columns: 140px 1fr; gap: 16px; box-shadow: var(--shadow-sm); transition: transform .2s, box-shadow .2s; cursor: pointer; }
+    .content-card:hover { transform: translateY(-2px); box-shadow: 0 16px 32px rgba(15,23,42,.08); }
+    .cover { border-radius: 16px; min-height: 120px; background: linear-gradient(135deg, var(--soft), #fff); position: relative; overflow: hidden; }
+    .cover::before { content: ""; position: absolute; width: 90px; height: 90px; border-radius: 50%; right: -24px; bottom: -24px; background: var(--accent); opacity: .12; }
+    .cover .kind { position: absolute; left: 10px; top: 10px; color: var(--accent); background: rgba(255,255,255,.86); border-radius: 999px; padding: 4px 9px; font-size: .72rem; font-weight: 800; }
+    .cover.video { background: linear-gradient(135deg, #1f2a44, #245bff); }
+    .cover.video .kind { color: #fff; background: rgba(255,255,255,.18); }
+    .play { position: absolute; inset: 0; display: grid; place-items: center; color: #fff; font-size: 1.8rem; }
+    .content h4 { font-size: 1.02rem; line-height: 1.4; margin: 4px 0 8px; }
+    .content p { color: var(--muted); font-size: .84rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .meta { display: flex; gap: 8px; align-items: center; margin-top: 12px; color: var(--muted); font-size: .76rem; flex-wrap: wrap; }
+    .dot { width: 4px; height: 4px; background: var(--rule); border-radius: 50%; }
+
+    .side-col { display: grid; gap: 24px; position: sticky; top: 92px; }
+    .side-card { background: var(--bg2); border: 1px solid var(--rule); border-radius: 22px; padding: 20px; box-shadow: var(--shadow-sm); }
+    .side-card h3 { font-size: 1.02rem; margin-bottom: 14px; }
+    .magazine { display: grid; grid-template-columns: 90px 1fr; gap: 14px; align-items: start; }
+    .mag-cover { min-height: 116px; border-radius: 16px; background: linear-gradient(160deg, var(--warm), #ffd7b8 46%, #fff5eb); padding: 12px; display: flex; flex-direction: column; justify-content: space-between; color: #7c2d12; box-shadow: inset 0 0 0 1px rgba(255,255,255,.42); }
+    .mag-cover b { font-size: 1.1rem; line-height: 1; }
+    .mag-cover span { font-size: .68rem; font-weight: 700; }
+    .mag-info h4 { font-size: .92rem; margin-bottom: 6px; line-height: 1.4; }
+    .mag-info p { color: var(--muted); font-size: .78rem; margin-bottom: 12px; }
+    .read-btn { background: var(--ink); color: #fff; border-radius: 12px; padding: 9px 14px; font-size: .82rem; font-weight: 800; }
+    .read-btn:hover { background: var(--accent); }
+    .side-tip { font-size: .8rem; color: var(--muted); line-height: 1.7; }
+    .side-tip b { color: var(--ink); display: block; margin-bottom: 4px; }
+
+    .site-footer { border-top: 1px solid var(--rule); margin-top: 40px; }
+    .footer-inner { max-width: var(--max); margin: 0 auto; padding: 24px 28px; color: var(--muted); font-size: .8rem; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+
+    .modal { position: fixed; inset: 0; background: rgba(15,23,42,.45); display: none; align-items: center; justify-content: center; padding: 24px; z-index: 80; }
+    .modal.open { display: flex; }
+    .sheet { width: 100%; max-width: 580px; background: var(--bg2); border-radius: 24px; padding: 28px; box-shadow: 0 30px 70px rgba(15,23,42,.3); max-height: 86%; overflow: auto; }
+    .sheet-head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; margin-bottom: 16px; }
+    .sheet h3 { font-size: 1.3rem; line-height: 1.3; letter-spacing: -.01em; }
+    .close { width: 36px; height: 36px; border-radius: 50%; background: var(--bg); color: var(--muted); font-weight: 900; flex-shrink: 0; font-size: 1.1rem; }
+    .close:hover { background: var(--rule); }
+    .sheet .tag { display: inline-flex; color: var(--accent); background: var(--soft); border-radius: 999px; padding: 5px 11px; font-size: .76rem; font-weight: 800; margin-bottom: 12px; }
+    .sheet p { color: var(--muted); font-size: .92rem; margin-bottom: 14px; line-height: 1.7; }
+    .fake-player { height: 200px; border-radius: 18px; background: linear-gradient(135deg, #111827, #245bff); color: #fff; display: grid; place-items: center; margin: 14px 0; }
+    .fake-player span { width: 64px; height: 64px; border-radius: 50%; background: rgba(255,255,255,.18); display: grid; place-items: center; font-size: 1.8rem; }
+    .detail-meta { color: var(--muted); font-size: .82rem; margin-bottom: 16px; }
+    .link-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .link-row .read-btn { flex: 1; text-align: center; }
+
+    @media (max-width: 960px) {
+      .layout { grid-template-columns: 1fr; }
+      .side-col { position: static; grid-template-columns: 1fr 1fr; }
+      .quick-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .header-inner { padding: 12px 16px; gap: 12px; flex-wrap: wrap; }
+      .header-search { order: 3; max-width: 100%; width: 100%; }
+      .page-main { padding: 20px 16px 40px; }
+      .hero-content { padding: 32px 28px; }
+      .hero-content h3 { font-size: 1.5rem; }
+      .feed { grid-template-columns: 1fr; }
+      .content-card { grid-template-columns: 110px 1fr; }
+      .side-col { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== 口令门禁 ===== -->
+  <div class="gate" id="gate">
+    <div class="gate-card">
+      <div class="gate-logo">文</div>
+      <h1>企业文化号</h1>
+      <p class="sub">内部文化内容，仅限组织成员访问</p>
+      <input class="gate-input" id="gateInput" type="password" placeholder="请输入访问口令" autocomplete="off">
+      <button class="gate-btn" id="gateBtn">进入文化号</button>
+      <div class="gate-err" id="gateErr"></div>
+      <p class="gate-hint">口令由管理员设置，向文化负责人索取</p>
+    </div>
+  </div>
+
+  <!-- ===== 主应用 ===== -->
+  <main class="app" id="app">
+    <header class="site-header">
+      <div class="header-inner">
+        <div class="brand">
+          <div class="logo">文</div>
+          <div>
+            <h2 id="siteName">企业文化号</h2>
+            <p id="siteSlogan">看见身边的人与事</p>
+          </div>
+        </div>
+        <label class="header-search">
+          <span>搜索</span>
+          <input id="searchInput" type="search" placeholder="搜索文章、视频、内刊">
+        </label>
+        <div class="header-right">
+          <span class="lock-tag">已验证</span>
+          <button class="logout-btn" id="logoutBtn">退出</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-main">
+      <article class="hero-card" id="heroCard">
+        <div class="hero-art"></div>
+        <div class="hero-content">
+          <span class="label" id="heroLabel">本周推荐 · 活动视频</span>
+          <h3 id="heroTitle">2026 员工运动会精彩回顾</h3>
+          <p id="heroDesc">把热烈、协作和欢笑剪成 3 分钟，留住大家一起奔跑的瞬间。</p>
+          <div class="hero-actions">
+            <button class="primary open-detail" data-source="hero">立即观看</button>
+            <button class="ghost" id="copyHero">复制链接</button>
+          </div>
+        </div>
+      </article>
+
+      <section class="quick-section">
+        <div class="section-head"><h3>栏目入口</h3></div>
+        <div class="quick-grid">
+          <button class="quick" data-filter="文章"><span class="icon">文</span><span class="q-text"><b>图文</b><span>活动回顾 · 文化观察</span></span></button>
+          <button class="quick" data-filter="视频"><span class="icon">播</span><span class="q-text"><b>视频</b><span>活动花絮 · 短片</span></span></button>
+          <button class="quick" data-filter="专访"><span class="icon">访</span><span class="q-text"><b>专访</b><span>人物访谈 · 故事</span></span></button>
+          <button class="quick" data-filter="内刊"><span class="icon">刊</span><span class="q-text"><b>内刊</b><span>月刊 · 季刊</span></span></button>
+        </div>
+      </section>
+
+      <div class="layout">
+        <div class="main-col">
+          <nav class="tabs" aria-label="内容分类">
+            <button class="tab active" data-filter="全部">全部</button>
+            <button class="tab" data-filter="文章">文章</button>
+            <button class="tab" data-filter="视频">活动视频</button>
+            <button class="tab" data-filter="专访">人物专访</button>
+            <button class="tab" data-filter="内刊">电子内刊</button>
+          </nav>
+          <div class="section-head"><h3>最新更新</h3></div>
+          <div class="feed" id="feed"></div>
+        </div>
+
+        <aside class="side-col">
+          <div class="side-card">
+            <div class="section-head"><h3>电子内刊</h3></div>
+            <article class="magazine" id="magazine" data-source="mag">
+              <div class="mag-cover">
+                <span id="magIssue">2026 / 07</span>
+                <b>月刊</b>
+                <span>OUR STORY</span>
+              </div>
+              <div class="mag-info">
+                <h4 id="magTitle">7 月刊｜一起看见更好的我们</h4>
+                <p id="magDesc">经营快讯、员工故事、活动回顾和文化问答集中呈现。</p>
+                <button class="read-btn open-detail" data-source="mag">阅读本期</button>
+              </div>
+            </article>
+          </div>
+          <div class="side-card">
+            <div class="section-head"><h3>关于本站</h3></div>
+            <p class="side-tip"><b>企业文化号</b>面向组织成员开放，需口令访问。内容聚合图文、视频、专访与电子内刊。</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <span>企业文化号 · 内部内容平台</span>
+        <span>访问需口令 · 内容由管理员维护</span>
+      </div>
+    </footer>
+  </main>
+
+  <!-- ===== 详情弹窗 ===== -->
+  <div class="modal" id="modal" role="dialog" aria-modal="true">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div>
+          <span class="tag" id="modalType">内容</span>
+          <h3 id="modalTitle">标题</h3>
+        </div>
+        <button class="close" id="closeModal" aria-label="关闭">×</button>
+      </div>
+      <div class="fake-player" id="player"><span>▶</span></div>
+      <p id="modalDesc">内容简介</p>
+      <div class="detail-meta" id="modalMeta"></div>
+      <div class="link-row">
+        <button class="read-btn" id="copyLink">复制推送链接</button>
+        <button class="read-btn" id="openLink" style="background:var(--accent);display:none;">打开原文</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ╔═══════════════════════════════════════════════════════════════════╗
+   ║                                                                       ║
+   ║          企 业 文 化 号 · 内 容 编 辑 区                              ║
+   ║                                                                       ║
+   ║   ★ 改内容只改这个区块！不用动其他代码 ★                              ║
+   ║                                                                       ║
+   ║   规则：                                                               ║
+   ║   1. 文字两边的引号 " " 必须保留，只改引号里的中文                    ║
+   ║   2. 每行末尾的逗号 , 必须保留                                         ║
+   ║   3. 想删一条内容：整行删掉即可                                        ║
+   ║   4. 想加一条内容：复制一条整行，改内容，注意每行末尾的逗号           ║
+   ║                                                                       ║
+   ╚═══════════════════════════════════════════════════════════════════╝ */
+
+var CONTENT = {
+
+  /* ─── 访问口令（员工输入这个才能进） ─── */
+  passcode: "2026",
+
+  /* ─── 站点名 & 标语（左上角显示） ─── */
+  siteName: "企业文化号",
+  siteSlogan: "看见身边的人与事",
+
+  /* ─── 顶部推荐位（大蓝卡片） ─── */
+  hero: {
+    label: "本周推荐 · 活动视频",
+    title: "2026 员工运动会精彩回顾",
+    desc: "把热烈、协作和欢笑剪成 3 分钟，留住大家一起奔跑的瞬间。",
+    link: ""   // 填 https:// 开头的链接可点"打开原文"，留空只展示
+  },
+
+  /* ─── 电子内刊（右侧栏） ─── */
+  magazine: {
+    issue: "2026 / 07",
+    title: "7 月刊｜一起看见更好的我们",
+    desc: "经营快讯、员工故事、活动回顾和文化问答集中呈现。",
+    link: ""
+  },
+
+  /* ─── 内容列表（最新更新区，每条一个对象） ───
+     字段说明：
+       category: 必须是 "文章" / "视频" / "专访" / "内刊" 之一
+       title:    标题
+       desc:     简介（一两句话）
+       date:     日期，如 "今天" / "昨天" / "07-28"
+       duration: 时长或阅读时间，如 "3分12秒" / "4分钟读完"
+       reads:    阅读量数字，如 1236
+       link:     原文链接，留空则不显示"打开原文"按钮
+       isVideo:  视频或专访类填 true，文章填 false
+  */
+  items: [
+    {
+      category: "视频",
+      title: "活动视频｜员工运动会幕后花絮",
+      desc: "镜头记录了从布置现场到颁奖合影的全过程，适合作为活动传播短片。",
+      date: "今天",
+      duration: "3分12秒",
+      reads: 1236,
+      link: "",
+      isVideo: true
+    },
+    {
+      category: "专访",
+      title: "人物专访｜走近一线项目经理王明",
+      desc: "一次关于责任、成长和团队信任的访谈，适合做成 5 分钟人物短片。",
+      date: "昨天",
+      duration: "5分40秒",
+      reads: 986,
+      link: "",
+      isVideo: true
+    },
+    {
+      category: "文章",
+      title: "活动回顾｜这个夏天，我们一起完成了 12 场共创",
+      desc: "用图文记录跨部门协作的过程，沉淀可复用的活动组织经验。",
+      date: "07-28",
+      duration: "4分钟读完",
+      reads: 742,
+      link: "",
+      isVideo: false
+    },
+    {
+      category: "文章",
+      title: "文化观察｜为什么我们要记录普通岗位上的闪光时刻",
+      desc: "把员工故事从零散群消息中沉淀下来，让更多人看见身边榜样。",
+      date: "07-25",
+      duration: "5分钟读完",
+      reads: 618,
+      link: "",
+      isVideo: false
+    }
+  ]
+};
+
+/* ╔═══════════════════════════════════════════════════════════════════╗
+   ║                                                                       ║
+   ║          内 容 编 辑 区 结 束                                          ║
+   ║                                                                       ║
+   ║          下面的代码是页面运行逻辑，一般不用动                          ║
+   ║                                                                       ║
+   ╚═══════════════════════════════════════════════════════════════════╝ */
+
+
+
+
+(function () {
+  "use strict";
+
+  var AUTH_KEY = "cultureHubAuthed_v2";
+
+  var gate = document.getElementById("gate");
+  var gateInput = document.getElementById("gateInput");
+  var gateBtn = document.getElementById("gateBtn");
+  var gateErr = document.getElementById("gateErr");
+  var app = document.getElementById("app");
+  var feed = document.getElementById("feed");
+  var searchInput = document.getElementById("searchInput");
+  var tabs = Array.prototype.slice.call(document.querySelectorAll(".tab"));
+  var modal = document.getElementById("modal");
+  var player = document.getElementById("player");
+  var openLink = document.getElementById("openLink");
+
+  // 初始化静态文字
+  document.getElementById("siteName").textContent = CONTENT.siteName;
+  document.getElementById("siteSlogan").textContent = CONTENT.siteSlogan;
+  document.getElementById("heroLabel").textContent = CONTENT.hero.label;
+  document.getElementById("heroTitle").textContent = CONTENT.hero.title;
+  document.getElementById("heroDesc").textContent = CONTENT.hero.desc;
+  document.getElementById("magIssue").textContent = CONTENT.magazine.issue;
+  document.getElementById("magTitle").textContent = CONTENT.magazine.title;
+  document.getElementById("magDesc").textContent = CONTENT.magazine.desc;
+
+  function isAuthed() { return sessionStorage.getItem(AUTH_KEY) === "1"; }
+  function showGate() {
+    gate.style.display = "flex";
+    app.classList.remove("show");
+    gateInput.value = ""; gateErr.textContent = "";
+    setTimeout(function () { gateInput.focus(); }, 50);
+  }
+  function showApp() {
+    gate.style.display = "none";
+    app.classList.add("show");
+    renderFeed();
+  }
+  function tryEnter() {
+    var v = (gateInput.value || "").trim();
+    if (v === CONTENT.passcode) { sessionStorage.setItem(AUTH_KEY, "1"); showApp(); }
+    else { gateErr.textContent = "口令不正确，请重试"; gateInput.value = ""; gateInput.focus(); }
+  }
+  gateBtn.addEventListener("click", tryEnter);
+  gateInput.addEventListener("keydown", function (e) { if (e.key === "Enter") tryEnter(); });
+  document.getElementById("logoutBtn").addEventListener("click", function () { sessionStorage.removeItem(AUTH_KEY); showGate(); });
+
+  function escapeHtml(s) {
+    return String(s == null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+  function renderFeed() {
+    var active = document.querySelector(".tab.active");
+    var filter = active ? active.dataset.filter : "全部";
+    var query = (searchInput.value || "").trim().toLowerCase();
+    var list = CONTENT.items.filter(function (it) {
+      var matchFilter = filter === "全部" || it.category === filter;
+      var text = (it.title + " " + it.desc + " " + it.category).toLowerCase();
+      var matchQuery = !query || text.indexOf(query) > -1;
+      return matchFilter && matchQuery;
+    });
+    if (!list.length) { feed.innerHTML = '<div class="empty">没有符合条件的内容</div>'; return; }
+    feed.innerHTML = list.map(function (it) {
+      var videoCls = it.isVideo ? " video" : "";
+      var playIcon = it.isVideo ? '<span class="play">▶</span>' : "";
+      return ''
+        + '<article class="content-card" data-idx="' + CONTENT.items.indexOf(it) + '">'
+        +   '<div class="cover' + videoCls + '"><span class="kind">' + escapeHtml(it.category) + '</span>' + playIcon + '</div>'
+        +   '<div class="content">'
+        +     '<h4>' + escapeHtml(it.title) + '</h4>'
+        +     '<p>' + escapeHtml(it.desc) + '</p>'
+        +     '<div class="meta"><span>' + escapeHtml(it.date || "") + '</span>'
+        +     (it.duration ? '<span class="dot"></span><span>' + escapeHtml(it.duration) + '</span>' : '')
+        +     '<span class="dot"></span><span>' + (it.reads || 0) + ' 阅读</span></div>'
+        +   '</div>'
+        + '</article>';
+    }).join("");
+  }
+
+  function applyFilter(filter) {
+    tabs.forEach(function (tab) { tab.classList.toggle("active", tab.dataset.filter === filter); });
+    renderFeed();
+  }
+  tabs.forEach(function (tab) { tab.addEventListener("click", function () { applyFilter(tab.dataset.filter); }); });
+  document.querySelectorAll(".quick").forEach(function (q) {
+    q.addEventListener("click", function () {
+      applyFilter(q.dataset.filter);
+      document.querySelector(".feed").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
+  searchInput.addEventListener("input", renderFeed);
+
+  function openItemDetail(idx) {
+    var it = CONTENT.items[idx];
+    if (!it) return;
+    document.getElementById("modalType").textContent = it.category;
+    document.getElementById("modalTitle").textContent = it.title;
+    document.getElementById("modalDesc").textContent = it.desc;
+    document.getElementById("modalMeta").textContent = (it.date ? it.date + " · " : "") + (it.duration ? it.duration + " · " : "") + (it.reads || 0) + " 阅读";
+    player.style.display = it.isVideo ? "grid" : "none";
+    if (it.link) { openLink.style.display = "block"; openLink.dataset.link = it.link; } else { openLink.style.display = "none"; }
+    modal.classList.add("open");
+  }
+  function openHeroDetail() {
+    document.getElementById("modalType").textContent = "推荐";
+    document.getElementById("modalTitle").textContent = CONTENT.hero.title;
+    document.getElementById("modalDesc").textContent = CONTENT.hero.desc;
+    document.getElementById("modalMeta").textContent = "";
+    player.style.display = "grid";
+    if (CONTENT.hero.link) { openLink.style.display = "block"; openLink.dataset.link = CONTENT.hero.link; } else { openLink.style.display = "none"; }
+    modal.classList.add("open");
+  }
+  function openMagDetail() {
+    document.getElementById("modalType").textContent = "内刊";
+    document.getElementById("modalTitle").textContent = CONTENT.magazine.title;
+    document.getElementById("modalDesc").textContent = CONTENT.magazine.desc;
+    document.getElementById("modalMeta").textContent = CONTENT.magazine.issue ? "期号 " + CONTENT.magazine.issue : "";
+    player.style.display = "none";
+    if (CONTENT.magazine.link) { openLink.style.display = "block"; openLink.dataset.link = CONTENT.magazine.link; } else { openLink.style.display = "none"; }
+    modal.classList.add("open");
+  }
+  app.addEventListener("click", function (e) {
+    var t = e.target.closest(".open-detail, .content-card, .magazine");
+    if (!t) return;
+    if (t.classList.contains("hero-card") || t.dataset.source === "hero") { openHeroDetail(); return; }
+    if (t.dataset.source === "mag" || t.id === "magazine") { openMagDetail(); return; }
+    if (t.classList.contains("content-card")) { openItemDetail(parseInt(t.dataset.idx, 10)); return; }
+  });
+  document.getElementById("closeModal").addEventListener("click", function () { modal.classList.remove("open"); });
+  modal.addEventListener("click", function (e) { if (e.target === modal) modal.classList.remove("open"); });
+
+  function copyText(txt) {
+    if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(txt).catch(function () {}); }
+    else {
+      var ta = document.createElement("textarea"); ta.value = txt; document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); } catch (e) {} document.body.removeChild(ta);
+    }
+  }
+  var toastTimer = null;
+  function toast(msg) {
+    var el = document.getElementById("toast") || (function () {
+      var d = document.createElement("div"); d.id = "toast";
+      d.style.cssText = "position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(15,23,42,.85);color:#fff;padding:12px 20px;border-radius:14px;font-size:.86rem;z-index:200;opacity:0;transition:opacity .2s;pointer-events:none;";
+      document.body.appendChild(d); return d;
+    })();
+    el.textContent = msg; el.style.opacity = "1";
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.style.opacity = "0"; }, 1600);
+  }
+  document.getElementById("copyLink").addEventListener("click", function () { copyText(location.href); toast("页面链接已复制"); });
+  document.getElementById("copyHero").addEventListener("click", function () { copyText(location.href); toast("链接已复制"); });
+  openLink.addEventListener("click", function () { var lk = openLink.dataset.link; if (lk) window.open(lk, "_blank"); });
+
+  if (isAuthed()) { showApp(); } else { showGate(); }
+})();
+</script>
+</body>
+</html>
